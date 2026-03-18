@@ -14,9 +14,12 @@ Une application web pour rechercher et consulter des documents PDF, Word et Exce
 
 - Upload de documents (`PDF`, `DOCX`, `XLSX`) via une interface web.
 - Extraction automatique du contenu texte pour indexation dans **Solr**.
-- Recherche avec complétion automatique (autocomplete).
+- Recherche avec pondération (title boosté) et score de pertinence.
+- Suggestions automatiques de recherche (autocomplete).
 - Visualisation des résultats avec aperçu du contenu et lien pour ouvrir le fichier.
 - Gestion simple des fichiers uploadés depuis le dossier `uploads/`.
+- Création automatique du dossier uploads si nécessaire.
+- Commit automatique dans Solr après chaque upload pour indexation immédiate.
 
 ---
 
