@@ -79,6 +79,8 @@
             <button class="btn btn-primary" type="submit">Search</button>
         </form>
 
+        <ul id="suggestions" class="list-group mt-2"></ul>
+
         {% if docs %}
             {% for doc in docs %}
             <div class="result-card">
@@ -95,14 +97,28 @@
         {% endif %}
     </div>
 
-    <script>
+   <script>
         const input = document.querySelector("input[name='q']");
+        const list = document.getElementById("suggestions");
 
         input.addEventListener("input", async () => {
             let res = await fetch(`/autocomplete?term=${input.value}`);
             let data = await res.json();
 
-            console.log(data); // pour voir les résultats dans la console
+            list.innerHTML = "";
+
+            data.suggestions.forEach(s => {
+                let li = document.createElement("li");
+                li.className = "list-group-item";
+                li.textContent = s;
+
+                li.onclick = () => {
+                    input.value = s;
+                    list.innerHTML = "";
+                };
+
+                list.appendChild(li);
+            });
         });
     </script>
 </body>

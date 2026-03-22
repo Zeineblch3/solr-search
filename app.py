@@ -80,14 +80,17 @@ def extract_text(filepath):
 
 @app.route("/autocomplete")
 def autocomplete():
-
     term = request.args.get("term")
 
-    url = f"http://localhost:8983/solr/documents/suggest?suggest.q={term}&wt=json"
+    url = f"http://localhost:8983/solr/documents/select?q=title:{term}*&fl=title&rows=5&wt=json"
+    response = requests.get(url).json()
 
-    response = requests.get(url)
+    suggestions = [
+        doc["title"][0]
+        for doc in response["response"]["docs"]
+    ]
 
-    return response.json()
+    return {"suggestions": suggestions}
 
 @app.route("/search")
 def search():
