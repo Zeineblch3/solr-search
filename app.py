@@ -27,28 +27,23 @@ def index():
 @app.route("/upload", methods=["POST"]) #route reçoit le fichier envoyé par le formulaire
 
 def upload_file():
-    file = request.files["file"] #Flask récupère le fichier envoyé
+    file = request.files["file"]
 
     if file:
-        #Le fichier est sauvegardé dans :uploads/
         filepath = os.path.join(app.config["UPLOAD_FOLDER"], file.filename) 
         file.save(filepath)
 
-        text = extract_text(filepath) #fonction lit le contenu du document
+        text, author = extract_text(filepath) 
 
-        #crée un document avec 4 champs
         data = {
             "title": file.filename,
-            "author": "Admin", 
+            "author": author, 
             "content": text,
             "suggest": file.filename,
             "file_path": filepath
         }
 
-        #document est envoyé vers Solr
-        requests.post(SOLR_URL, json=data) 
-
-        #commit obligatoire (Solr indexe le document immédiatement)
+        requests.post(SOLR_URL, json=data)
         requests.get("http://localhost:8983/solr/documents/update?commit=true")
 
     return redirect("/")
@@ -57,7 +52,12 @@ def upload_file():
 # Extraction automatique
 def extract_text(filepath):
     parsed = parser.from_file(filepath)
-    return parsed["content"] or ""
+    content = parsed.get("content") or ""
+    metadata = parsed.get("metadata") or {}
+
+    author = metadata.get("author", "Unknown")
+
+    return content, author
 
 
 @app.route("/autocomplete")
@@ -78,26 +78,44 @@ def autocomplete():
 def search():
 
     query = request.args.get("q")
-    field = request.args.get("field")  
+    field = request.args.get("field", "all")
+    author_filter = request.args.get("author")
+
     docs = []
+    facets = {}
 
     if query:
 
         if field == "title":
-            q_param = f"title:{query}"
-        elif field == "content":
-            q_param = f"content:{query}"
+            solr_query = f"title:{query}"
         elif field == "author":
-            q_param = f"author:{query}"
+            solr_query = f"author:{query}"
+        elif field == "content":
+            solr_query = f"content:{query}"
         else:
-            q_param = f"title:{query}^2 OR content:{query}"
+            solr_query = f"title:{query} OR content:{query} OR author:{query}"
 
-        solr_url = f"http://localhost:8983/solr/documents/select?q={q_param}&fl=*,score&wt=json"
+        fq = ""
+        if author_filter:
+            fq = f"&fq=author:{author_filter}"
+
+        solr_url = f"http://localhost:8983/solr/documents/select?q={solr_query}&fl=*,score&facet=true&facet.field=author&wt=json{fq}"
 
         response = requests.get(solr_url).json()
+
         docs = response["response"]["docs"]
 
-    return render_template("search.html", docs=docs)
+        facet_data = response.get("facet_counts", {}).get("facet_fields", {})
+
+        for field_name, values in facet_data.items():
+            facets[field_name] = []
+            for i in range(0, len(values), 2):
+                facets[field_name].append({
+                    "value": values[i],
+                    "count": values[i+1]
+                })
+
+    return render_template("search.html", docs=docs, facets=facets)
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):

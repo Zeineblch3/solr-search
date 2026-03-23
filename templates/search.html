@@ -89,6 +89,22 @@
         </form>
 
         <ul id="suggestions" class="list-group mt-2"></ul>
+        <h4 class="mt-4">Filters</h4>
+
+            {% for field, values in facets.items() %}
+                <div class="mb-3">
+                    <strong>{{ field }}</strong>
+                    <ul class="list-group">
+                        {% for item in values %}
+                            <li class="list-group-item">
+                                <a href="/search?q={{ request.args.get('q') }}&author={{ item.value }}">
+                                    {{ item.value }} ({{ item.count }})
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endfor %}
             
         {% if docs %}
             {% for doc in docs %}
