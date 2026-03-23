@@ -23,6 +23,9 @@ Une application web pour rechercher et consulter des documents PDF, Word et Exce
 - Création automatique du dossier uploads si nécessaire.
 - Commit automatique dans Solr après chaque upload pour indexation immédiate.
 
+# Aperçu de l'Autocomplete
+![Capture de l'application](images/autocomplete.png)
+
 ---
 
 ## Structure du projet
