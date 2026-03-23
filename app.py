@@ -1,9 +1,7 @@
 from flask import Flask, render_template, request, redirect, send_from_directory #créer le serveur web
 import os #gérer les fichiers et dossiers
 import requests #envoyer des requêtes HTTP vers Solr
-import pdfplumber #lire les fichiers pdf
-from docx import Document #lire les fichiers Word
-import pandas as pd #lire les fichiers Excel
+from tika import parser
 
 app = Flask(__name__) #Ici on crée le serveur web Flask
 
@@ -58,25 +56,9 @@ def upload_file():
 
 # Extraction automatique
 def extract_text(filepath):
-    ext = filepath.split(".")[-1].lower()
+    parsed = parser.from_file(filepath)
+    return parsed["content"] or ""
 
-    text = ""
-
-    if ext == "pdf":
-        with pdfplumber.open(filepath) as pdf:
-            for page in pdf.pages:
-                text += page.extract_text() or ""
-
-    elif ext == "docx":
-        doc = Document(filepath) #lit chaque paragraphe
-        for para in doc.paragraphs:
-            text += para.text + "\n"
-
-    elif ext == "xlsx":
-        df = pd.read_excel(filepath) #convertit les données en texte
-        text = df.to_string()
-
-    return text
 
 @app.route("/autocomplete")
 def autocomplete():
