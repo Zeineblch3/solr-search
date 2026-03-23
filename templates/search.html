@@ -75,12 +75,21 @@
 
         <h2 class="search-title">🔎 Document Search</h2>
         <form class="search-box" action="/search" method="get">
-            <input type="text" name="q" value="" placeholder="Search documents..." required>
+    
+            <select name="field" class="form-select me-2" style="max-width:150px;">
+                <option value="all">All</option>
+                <option value="title">Title</option>
+                <option value="content">Content</option>
+                <option value="author">Author</option>
+            </select>
+
+            <input type="text" name="q" placeholder="Search documents..." required>
+
             <button class="btn btn-primary" type="submit">Search</button>
         </form>
 
         <ul id="suggestions" class="list-group mt-2"></ul>
-
+            
         {% if docs %}
             {% for doc in docs %}
             <div class="result-card">

@@ -39,7 +39,7 @@ def upload_file():
         #crée un document avec 4 champs
         data = {
             "title": file.filename,
-            "author": "Unknown",
+            "author": "Admin", 
             "content": text,
             "suggest": file.filename,
             "file_path": filepath
@@ -78,10 +78,22 @@ def autocomplete():
 def search():
 
     query = request.args.get("q")
+    field = request.args.get("field")  
     docs = []
 
     if query:
-        solr_url = f"http://localhost:8983/solr/documents/select?q=title:{query}^2 OR content:{query}&fl=*,score&wt=json"
+
+        if field == "title":
+            q_param = f"title:{query}"
+        elif field == "content":
+            q_param = f"content:{query}"
+        elif field == "author":
+            q_param = f"author:{query}"
+        else:
+            q_param = f"title:{query}^2 OR content:{query}"
+
+        solr_url = f"http://localhost:8983/solr/documents/select?q={q_param}&fl=*,score&wt=json"
+
         response = requests.get(solr_url).json()
         docs = response["response"]["docs"]
 
