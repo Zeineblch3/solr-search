@@ -97,7 +97,7 @@
                     <ul class="list-group">
                         {% for item in values %}
                             <li class="list-group-item">
-                                <a href="/search?q={{ request.args.get('q') }}&author={{ item.value }}">
+                                <a href="/search?q={{ request.args.get('q') }}&field={{ request.args.get('field') }}&author={{ item.value }}">
                                     {{ item.value }} ({{ item.count }})
                                 </a>
                             </li>
