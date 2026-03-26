@@ -1,30 +1,25 @@
-from flask import Flask, render_template, request, redirect, send_from_directory #créer le serveur web
-import os #gérer les fichiers et dossiers
-import requests #envoyer des requêtes HTTP vers Solr
+from flask import Flask, render_template, request, redirect, send_from_directory
+import os 
+import requests 
 from tika import parser
 
-app = Flask(__name__) #Ici on crée le serveur web Flask
+app = Flask(__name__)
 
-#Les documents uploadés seront stockés dans uploads
 UPLOAD_FOLDER = "uploads"
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-#application envoie les documents vers : Solr -> collection "documents"
 SOLR_URL = "http://localhost:8983/solr/documents/update/json/docs"
 
-#Si le dossier n'existe pas, il est créé.
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
 
-#Page principale
 @app.route("/")
 def index():
     return render_template("index.html")
 
 
-# Upload + Indexation
-@app.route("/upload", methods=["POST"]) #route reçoit le fichier envoyé par le formulaire
+@app.route("/upload", methods=["POST"]) 
 
 def upload_file():
     file = request.files["file"]
@@ -49,7 +44,6 @@ def upload_file():
     return redirect("/")
 
 
-# Extraction automatique
 def extract_text(filepath):
     parsed = parser.from_file(filepath)
     content = parsed.get("content") or ""
@@ -119,7 +113,6 @@ def search():
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
-    #va chercher le fichier dans le dossier uploads/ et le renvoyer au navigateur
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename) 
 
 if __name__ == "__main__":
