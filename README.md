@@ -35,14 +35,6 @@ Une application web pour rechercher et consulter des documents PDF, Word et Exce
 
 ---
 
-## Structure du projet
-flask-solr-search/
-│
-├── app.py # Application Flask principale
-├── templates/ # Templates HTML (index.html, search.html)
-├── uploads/ # Documents uploadés
-└── README.md # Ce fichier
-
 # Guide de Configuration et Démarrage
 
 ## 1. Configuration et démarrage de Solr
@@ -61,11 +53,11 @@ solr stop
 
 ---
 
-## 2. Lancer l’application Flask
+## 2. Lancer l’application
 
 Assurez-vous que Solr est démarré.
 
-### Exécuter Flask
+### Exécuter
 python app.py
 
 ### Accéder à l’application
